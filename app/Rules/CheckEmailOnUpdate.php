@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Rules;
+
+use App\Models\User;
+use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
+
+class CheckEmailOnUpdate implements Rule
+{
+    /**
+     * Create a new rule instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Determine if the validation rule passes.
+     *
+     * @param  string  $attribute
+     * @param  mixed  $value
+     * @return bool
+     */
+    public function passes($attribute, $value)
+    {
+        $return = false;
+
+        $user = User::query()
+            ->where('email', $value)
+            ->first();
+
+        if (is_null($user)) {
+            return true;
+        }
+
+        if ($user->id === Auth::user()->id) {
+            $return = true;
+        }
+
+        return $return;
+    }
+
+    /**
+     * Get the validation error message.
+     *
+     * @return string
+     */
+    public function message()
+    {
+        return 'validation-email-unique';
+    }
+}
